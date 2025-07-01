@@ -2,16 +2,19 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-// Create context
 const UserContext = createContext();
 
-// Create provider
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({});
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ LOGIN FUNCTION
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  });
+
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem("user"));
+
+  // 🔐 LOGIN
   const login = async (email, password) => {
     try {
       const res = await axios.post(
@@ -19,19 +22,19 @@ export const AuthProvider = ({ children }) => {
         { email, password },
         { withCredentials: true }
       );
-      console.log(res);
-      if (res.data && res.data.user) {
-        setUser(res.data);
+
+      if (res.data?.user) {
+        setUser(res.data.user);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
         setIsAuthenticated(true);
-        navigate('/');
+        navigate("/");
       }
-    } catch (error) {
-      console.error("Login failed:", error.response?.data?.message || error.message);
-      toast?.error?.("Login failed. Please try again.");
+    } catch (err) {
+      console.error("Login failed:", err.response?.data?.message || err.message);
     }
   };
 
-  // ✅ LOGOUT FUNCTION
+  // 🚪 LOGOUT
   const logout = async () => {
     try {
       await axios.post(
@@ -42,12 +45,14 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error("Logout error:", err.message);
     } finally {
-      setUser({});
+      setUser(null);
       setIsAuthenticated(false);
+      localStorage.removeItem("user");
+      navigate("/login");
     }
   };
 
-  // ✅ REGISTER FUNCTION
+  // 📝 REGISTER
   const register = async (username, email, password) => {
     try {
       const res = await axios.post(
@@ -55,45 +60,29 @@ export const AuthProvider = ({ children }) => {
         { username, email, password },
         { withCredentials: true }
       );
-      if (res.data && res.data.user) {
-        setUser(res.data);
-        setIsAuthenticated(true);
-        toast?.success?.("Registered successfully!");
-      }
-    } catch (error) {
-      console.error("Registration failed:", error.response?.data?.message || error.message);
-      toast?.error?.("Registration failed. Please try again.");
+      console.log("User registered");
+      await login(email, password); // auto-login after registration
+    } catch (err) {
+      console.error("Registration failed:", err.response?.data?.message || err.message);
     }
   };
 
-  // ✅ AUTO-CHECK LOGIN (optional, if token stored in cookies)
+  // 🧠 Auto-sync with localStorage
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/user/me`,
-          { withCredentials: true }
-        );
-        if (res.data && res.data.user) {
-          setUser(res.data.user);
-          setIsAuthenticated(true);
-        }
-      } catch (err) {
-        setIsAuthenticated(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+      setIsAuthenticated(true);
+    } else {
+      localStorage.removeItem("user");
+      setIsAuthenticated(false);
+    }
+  }, [user]);
 
   return (
-    <UserContext.Provider
-      value={{ user, setUser, login, logout, register, isAuthenticated }}
-    >
+    <UserContext.Provider value={{ user, setUser, login, logout, register, isAuthenticated }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-// Custom hook to use context
 export const useAuth = () => useContext(UserContext);

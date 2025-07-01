@@ -4,34 +4,50 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'mysecretkey'; // Use .env in production
 
-// Register a new user
+// Register a new user 
+
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
+    // Validation: make sure all fields are present
+    if (!username || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'Email already exists' });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
 
-    // Hash the password
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create the user
+    // Create user
     const newUser = new User({
       username,
       email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
-
+    // Optional: return user (don't send password)
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        id: newUser._id,
+        username: newUser.username,
+        email: newUser.email,
+      },
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error during registration' });
+    console.error("Register Error:", err.message);
+    res.status(500).json({ message: "Server error during registration" });
   }
 };
+
 
 // Login user
 exports.login = async (req, res) => {
@@ -78,15 +94,14 @@ exports.logout = async (req, res) => {
   try {
     res.cookie('token', '', {
       httpOnly: true,
-      expires: new Date(0), // expire the cookie immediately
+      expires: new Date(0),
       sameSite: 'Lax',
       secure: process.env.NODE_ENV === 'production',
     });
 
     res.status(200).json({ message: 'Logged out successfully' });
-    // Or if you really want to redirect from backend:
-    res.redirect('/');
   } catch (err) {
     res.status(500).json({ message: 'Logout failed', error: err.message });
   }
 };
+

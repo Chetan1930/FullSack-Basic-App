@@ -1,17 +1,17 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { UserContext } from '../context/UserContext';
+import { useAuth } from '../context/UserContext';
 
 const Navbar = () => {
-  const { isAuthenticated, logout, user } = useContext(UserContext);
+  const { logout, user,isAuthenticated } = useAuth();
 
   return (
-    <nav className="flex justify-between items-center bg-blue-600 px-6 py-4 text-white">
+    <nav className="flex justify-between items-center bg-blue-700 px-6 py-4 text-black min-w-xs
+">
       <div className="text-xl font-semibold">
-        <Link to="/">QuickMeet</Link>
+        QuickMeet
       </div>
       <div className="space-x-4">
-        <Link to="/dashboard" className="hover:underline">Dashboard</Link>
         {!isAuthenticated ? (
           <>
             <Link to="/login" className="hover:underline">Login</Link>

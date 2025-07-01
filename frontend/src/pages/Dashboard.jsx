@@ -5,11 +5,6 @@ import axios from "axios";
 const Dashboard = () => {
   const { user, logout } = useAuth();
 
-  console.log(user);
-
-  const handleLogout = () => {
-    logout();
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-200 p-6">
@@ -19,12 +14,6 @@ const Dashboard = () => {
           <h1 className="text-4xl font-bold text-gray-800">
             Welcome, {user?.username || "User"} 👋
           </h1>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow transition"
-          >
-            Logout
-          </button>
         </div>
 
         {/* User Info Card */}
