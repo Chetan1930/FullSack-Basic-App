@@ -1,15 +1,22 @@
-import { useState } from 'react'
+import { Routes, Route, Navigate } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
+import { useContext } from "react";
+import { useAuth } from "./context/UserContext";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const user = useAuth();
 
   return (
     <>
-      <h1 class="text-3xl font-bold underline bg-amber-200">
-    Hello world!
-  </h1>
+      <Routes>
+        <Route path="/" element={user ? <Dashboard /> : <Navigate to='/login' />}/>
+        <Route path="/login" element={<Login/>} />
+        {/* <Route path="/login" element={<Login/>} /> */}
+        {/* <Route path="/login" element={<Login/>} /> */}
+      </Routes>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

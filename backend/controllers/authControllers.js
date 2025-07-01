@@ -72,3 +72,21 @@ exports.login = async (req, res) => {
     res.status(500).json({ message: 'Server error during login' });
   }
 };
+
+
+exports.logout = async (req, res) => {
+  try {
+    res.cookie('token', '', {
+      httpOnly: true,
+      expires: new Date(0), // expire the cookie immediately
+      sameSite: 'Lax',
+      secure: process.env.NODE_ENV === 'production',
+    });
+
+    res.status(200).json({ message: 'Logged out successfully' });
+    // Or if you really want to redirect from backend:
+    res.redirect('/');
+  } catch (err) {
+    res.status(500).json({ message: 'Logout failed', error: err.message });
+  }
+};
