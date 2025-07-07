@@ -2,22 +2,23 @@ import React, { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 
 function Chat() {
+  const [username, setUsername] = useState('');
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const socket = useRef(null);
 
   useEffect(() => {
-    // Connect to your backend server
+    const name = prompt('Enter your username:') || 'Anonymous';
+    setUsername(name);
+
     socket.current = io('http://localhost:3000', {
       withCredentials: true,
     });
 
-    // Listen for messages from server
-    socket.current.on('chat message', (msg) => {
-      setMessages((prevMessages) => [...prevMessages, msg]);
+    socket.current.on('chat message', (msgObj) => {
+      setMessages((prev) => [...prev, msgObj]);
     });
 
-    // Cleanup on unmount
     return () => {
       socket.current.disconnect();
     };
@@ -26,17 +27,29 @@ function Chat() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim()) {
-      socket.current.emit('chat message', message); // Send message to backend
-      setMessage(''); // Clear input
+      const msgObj = {
+        username,
+        text: message,
+        timestamp: new Date().toISOString(),
+      };
+      socket.current.emit('chat message', msgObj);
+      setMessage('');
     }
+  };
+
+  const formatTime = (iso) => {
+    const date = new Date(iso);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
     <div style={styles.chat}>
-      <h2 style={{ textAlign: 'center' }}>Simple Chat App</h2>
+      <h2 style={{ textAlign: 'center' }}>Chat Room</h2>
       <ul style={styles.messages}>
         {messages.map((msg, i) => (
-          <li key={i} style={styles.message}>{msg}</li>
+          <li key={i} style={styles.message}>
+            <strong>{msg.username}</strong> <span style={styles.time}>({formatTime(msg.timestamp)}):</span> {msg.text}
+          </li>
         ))}
       </ul>
       <form onSubmit={handleSubmit} style={styles.form}>
@@ -77,6 +90,11 @@ const styles = {
     background: '#f1f1f1',
     marginBottom: '6px',
     borderRadius: '5px',
+  },
+  time: {
+    color: '#888',
+    fontSize: '12px',
+    marginLeft: '4px',
   },
   form: {
     display: 'flex',
