@@ -43,78 +43,127 @@ function Chat() {
   };
 
   return (
-    <div style={styles.chat}>
-      <h2 style={{ textAlign: 'center' }}>Chat Room</h2>
-      <ul style={styles.messages}>
-        {messages.map((msg, i) => (
-          <li key={i} style={styles.message}>
-            <strong>{msg.username}</strong> <span style={styles.time}>({formatTime(msg.timestamp)}):</span> {msg.text}
-          </li>
-        ))}
-      </ul>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          style={styles.input}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type a message..."
-        />
-        <button style={styles.button} type="submit">Send</button>
-      </form>
+    <div style={styles.container}>
+      <div style={styles.chatBox}>
+        <div style={styles.header}>💬 WhatsChat</div>
+        <div style={styles.messages}>
+          {messages.map((msg, i) => {
+            const isMine = msg.username === username;
+            return (
+              <div
+                key={i}
+                style={{
+                  ...styles.message,
+                  alignSelf: isMine ? 'flex-end' : 'flex-start',
+                  backgroundColor: isMine ? '#dcf8c6' : '#fff',
+                  borderTopRightRadius: isMine ? 0 : '20px',
+                  borderTopLeftRadius: isMine ? '20px' : 0,
+                }}
+              >
+                <div style={styles.meta}>
+                  <span style={styles.username}>{msg.username}</span>
+                  <span style={styles.time}>{formatTime(msg.timestamp)}</span>
+                </div>
+                <div>{msg.text}</div>
+              </div>
+            );
+          })}
+        </div>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            style={styles.input}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type a message..."
+          />
+          <button style={styles.button} type="submit">Send</button>
+        </form>
+      </div>
     </div>
   );
 }
 
 const styles = {
-  chat: {
-    maxWidth: '500px',
-    margin: '30px auto',
-    padding: '20px',
-    background: '#fff',
-    borderRadius: '10px',
+  container: {
+    backgroundColor: '#e5ddd5',
+    height: '100vh',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chatBox: {
+    width: '100%',
+    maxWidth: '600px',
+    height: '90vh',
+    backgroundColor: '#f0f0f0',
+    borderRadius: '8px',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
     fontFamily: 'sans-serif',
-    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+  },
+  header: {
+    backgroundColor: '#075e54',
+    color: '#fff',
+    padding: '15px',
+    fontSize: '20px',
+    fontWeight: 'bold',
   },
   messages: {
-    listStyle: 'none',
-    padding: 0,
-    marginBottom: '10px',
-    maxHeight: '300px',
+    flex: 1,
+    padding: '15px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
     overflowY: 'auto',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
-    paddingInline: '10px',
+    backgroundColor: '#e5ddd5',
   },
   message: {
-    padding: '8px',
-    background: '#f1f1f1',
-    marginBottom: '6px',
-    borderRadius: '5px',
+    maxWidth: '70%',
+    padding: '10px 15px',
+    backgroundColor: '#fff',
+    borderRadius: '20px',
+    wordWrap: 'break-word',
+    fontSize: '15px',
+  },
+  meta: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '12px',
+    color: '#555',
+    marginBottom: '5px',
+  },
+  username: {
+    fontWeight: 'bold',
   },
   time: {
-    color: '#888',
-    fontSize: '12px',
-    marginLeft: '4px',
+    fontStyle: 'italic',
   },
   form: {
     display: 'flex',
-    gap: '10px'
+    padding: '10px',
+    backgroundColor: '#f0f0f0',
+    borderTop: '1px solid #ccc',
   },
   input: {
     flex: 1,
     padding: '10px',
     fontSize: '16px',
-    borderRadius: '5px',
-    border: '1px solid #ccc',
+    border: 'none',
+    borderRadius: '20px',
+    outline: 'none',
+    marginRight: '10px',
+    backgroundColor: '#fff',
   },
   button: {
-    padding: '10px 20px',
-    fontSize: '16px',
-    backgroundColor: '#007bff',
+    backgroundColor: '#25D366',
     color: '#fff',
     border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer'
+    padding: '10px 16px',
+    fontSize: '16px',
+    borderRadius: '20px',
+    cursor: 'pointer',
   },
 };
 
