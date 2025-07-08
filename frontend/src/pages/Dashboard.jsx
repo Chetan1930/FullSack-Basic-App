@@ -1,10 +1,11 @@
 import React from "react";
 import { useAuth } from "../context/UserContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { user, logout } = useAuth();
-
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 to-purple-200 p-6">
@@ -34,12 +35,18 @@ const Dashboard = () => {
             <p className="text-3xl font-semibold text-gray-800">12</p>
           </div>
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
-            <h3 className="text-xl font-bold text-green-600 mb-2">Tasks Completed</h3>
+            <h3 className="text-xl font-bold text-gray-600 mb-2">Tasks Completed</h3>
             <p className="text-3xl font-semibold text-gray-800">34</p>
           </div>
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
             <h3 className="text-xl font-bold text-purple-600 mb-2">New Messages</h3>
             <p className="text-3xl font-semibold text-gray-800">7</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+            <h3 className="text-xl font-bold text-green-600 mb-2">Group Chat</h3>
+            <p className="text-3xl font-semibold flex text-gray-800  justify-center">
+              <button onClick={()=>navigate('/chat')}>Join</button>
+            </p>
           </div>
         </div>
       </div>

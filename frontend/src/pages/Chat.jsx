@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
-
+import {useAuth} from '../context/UserContext';
 function Chat() {
   const [username, setUsername] = useState('');
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([]);
   const socket = useRef(null);
-
+  const {user}=useAuth()
   useEffect(() => {
-    const name = prompt('Enter your username:') || 'Anonymous';
+    const name = user.username;
     setUsername(name);
 
     socket.current = io('http://localhost:3000', {
